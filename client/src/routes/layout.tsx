@@ -5,7 +5,6 @@ export default component$(() => {
   useStylesScoped$(`
     main {
       padding: 1rem;
-      border-radius: 8px;
     }
   `);
   

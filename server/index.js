@@ -1,5 +1,6 @@
 import { Server } from "socket.io";
 import eiows from "eiows";
+import rug from "random-username-generator";
 
 const io = new Server(3000, {
     wsEnginge: eiows.Server,
@@ -8,12 +9,37 @@ const io = new Server(3000, {
     }
 });
 
+io.use((socket, next) => {
+    rug.setSeperator('_');
+    let username = rug.generate();
+    username = username.split('_').slice(0, 2).join('_').toLocaleLowerCase();
+
+    socket.username = username
+    next();
+});
+
 io.on("connection", (socket) => {
     console.log("a user connected");
 
-    socket.emit("hello", "world");
+    socket.emit("username", socket.username);
+
+    // emit all users
+    const users = [];
+    for (let [id, socket] of io.of("/").sockets) {
+        users.push({
+            userID: id,
+            username: socket.username
+        });
+    }
+    socket.emit("users", users);
+
+    // emit new user
+    socket.broadcast.emit("user connected", {
+        userID: socket.id,
+        username: socket.username
+    });
 
     socket.on("disconnect", () => {
-        console.log("user disconnected");
+        socket.broadcast.emit("user disconnected", socket.id);
     });
 });
