@@ -5,7 +5,7 @@ import rug from "random-username-generator";
 const io = new Server(3000, {
     wsEnginge: eiows.Server,
     cors: {
-        origin: "http://127.0.0.1:5173"
+        origin: "http://localhost:5173"
     }
 });
 
@@ -51,7 +51,6 @@ io.on("connection", (socket) => {
     });
 
     socket.on("disconnect", () => {
-        console.log("user disconnected", socket.username);
         socket.broadcast.emit("user disconnected", socket.id);
     });
 });
