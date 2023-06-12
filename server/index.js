@@ -13,13 +13,12 @@ io.use((socket, next) => {
     rug.setSeperator('_');
     let username = rug.generate();
     username = username.split('_').slice(0, 2).join('_').toLocaleLowerCase();
-
     socket.username = username
+
     next();
 });
 
 io.on("connection", (socket) => {
-    console.log("a user connected");
 
     socket.emit("username", socket.username);
 
@@ -33,6 +32,18 @@ io.on("connection", (socket) => {
     }
     socket.emit("users", users);
 
+    socket.on("message", (message) => {
+        const message_to_emit = {
+            userID: socket.id,
+            username: socket.username,
+            message,
+            time: new Date().toLocaleTimeString()
+        };
+
+        socket.emit("message", message_to_emit);
+        socket.broadcast.emit("message", message_to_emit);
+    });
+
     // emit new user
     socket.broadcast.emit("user connected", {
         userID: socket.id,
@@ -40,6 +51,7 @@ io.on("connection", (socket) => {
     });
 
     socket.on("disconnect", () => {
+        console.log("user disconnected", socket.username);
         socket.broadcast.emit("user disconnected", socket.id);
     });
 });
