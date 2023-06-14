@@ -36,7 +36,7 @@ export const GlobalStyle = createGlobalStyle`
         height: 100%;
         display: grid;
         grid-template-areas: "aside main";
-        grid-template-columns: 1fr 2fr;
+        grid-template-columns: 1fr 3fr;
     }
 
     @media screen and (max-width: 768px) {

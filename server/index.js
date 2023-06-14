@@ -1,11 +1,11 @@
 import { Server } from "socket.io";
-import eiows from "eiows";
+import * as eiows from "eiows";
 import rug from "random-username-generator";
 
 const io = new Server(3000, {
     wsEnginge: eiows.Server,
     cors: {
-        origin: "http://localhost:5173"
+        origin: process.env.CLIENT_URL,
     }
 });
 
@@ -13,26 +13,33 @@ io.use((socket, next) => {
     rug.setSeperator('_');
     let username = rug.generate();
     username = username.split('_').slice(0, 2).join('_').toLocaleLowerCase();
-    socket.username = username
+    socket.username = username;
 
     next();
 });
 
-io.on("connection", (socket) => {
+io.on("connection", async (socket) => {
+    const room = socket.handshake.query.code || socket.id;
 
-    socket.emit("username", socket.username);
+    console.log(socket.username, "joining room", room);
+    socket.join(room);
 
-    // emit all users
+    // emit all users in the room
     const users = [];
-    for (let [id, socket] of io.of("/").sockets) {
-        users.push({
-            userID: id,
-            username: socket.username
+
+    await io.in(room).fetchSockets().then((sockets) => {
+        sockets.forEach((socket) => {
+            users.push({
+                userID: socket.id,
+                username: socket.username
+            });
         });
-    }
+    });
+
     socket.emit("users", users);
 
     socket.on("message", (message) => {
+        console.log(socket.username, message, room);
         const message_to_emit = {
             userID: socket.id,
             username: socket.username,
@@ -40,17 +47,16 @@ io.on("connection", (socket) => {
             time: new Date().toLocaleTimeString()
         };
 
-        socket.emit("message", message_to_emit);
-        socket.broadcast.emit("message", message_to_emit);
+        io.in(room).emit("message", message_to_emit);
     });
 
     // emit new user
-    socket.broadcast.emit("user connected", {
+    socket.to(room).emit("user connected", {
         userID: socket.id,
         username: socket.username
     });
 
     socket.on("disconnect", () => {
-        socket.broadcast.emit("user disconnected", socket.id);
+        socket.to(room).emit("user disconnected", socket.id);
     });
 });

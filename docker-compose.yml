@@ -1,0 +1,18 @@
+version: '1.0'
+services:
+  frontend:
+    build:
+      context: ./client
+    container_name: frontend
+    ports:
+      - 80:80
+    environment:
+      - SOCKET_URL=http://localhost:3000
+  backend:
+    build:
+      context: ./server
+    container_name: backend
+    ports:
+      - 3000:3000
+    environment:
+      - CLIENT_URL=http://localhost

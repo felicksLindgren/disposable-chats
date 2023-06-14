@@ -5,10 +5,15 @@ import { socket } from "../socket.ts";
 import { Avatar } from "./avatar.tsx";
 
 const StyledAside = styled.aside`
+  overflow-y: auto;
   grid-area: aside;
   background-color: var(--container);
   border-right: 1px solid var(--border);
   padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 1rem;
 
   @media (max-width: 768px) {
     border: none;
@@ -23,6 +28,7 @@ const StyledUl = styled.ul`
     list-style: none;
     padding: 0;
     margin: 0;
+    overflow-y: auto;
 `;
 
 const StyledLi = styled.li`
@@ -33,6 +39,27 @@ const StyledLi = styled.li`
     font-weight: 500;
     color: var(--text);
     text-wrap: nowrap;
+
+    span {
+        color: var(--text-muted);
+    }
+`;
+
+const StyledAnchor = styled.a`
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--text);
+    text-wrap: nowrap;
+    text-decoration: none;
+    border-radius: 0.5rem;
+    padding: 0.5rem;
+    border: 1px solid var(--border);
+    background-color: var(--background);
 
     span {
         color: var(--text-muted);
@@ -75,11 +102,14 @@ export const Aside = () => {
             <StyledUl>
                 {sortedUsers.map(({ userID, username }: User) => (
                     <StyledLi key={userID}>
-                        <Avatar>{username[0]}{username[username.indexOf('_') + 1]}</Avatar>
+                        <Avatar index={username.length}>{username[0]}{username[username.indexOf('_') + 1]}</Avatar>
                         {username} <span>{userID === socket.id ? '(you)' : ''}</span>
                     </StyledLi>
                 ))}
             </StyledUl>
+            <StyledAnchor href="/">
+                <span>New Session</span>
+            </StyledAnchor>
         </StyledAside>
     )
 }
