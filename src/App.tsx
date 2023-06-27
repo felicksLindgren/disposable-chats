@@ -94,7 +94,7 @@ function App() {
         <h1># <span onClick={handleOnClick}>{id}</span></h1>
         <div>
           {messages.map((message, index) => (
-            <Message 
+            <Message
               index={message.username.length}
               key={index}
               message={message.message}

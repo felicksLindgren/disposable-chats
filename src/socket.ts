@@ -1,6 +1,6 @@
 import { io } from "socket.io-client";
 
-const URL = process.env.SOCKET_URL || 'http://localhost:3000';
+const URL = 'https://nodejs-production-7c99.up.railway.app';
 
 const urlParams = new URLSearchParams(window.location.search);
 const code = urlParams.get('c');
